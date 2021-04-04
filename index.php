@@ -1,41 +1,46 @@
 <?php
 
+use Gaivoronskiy\SquareEquation;
 use Gaivoronskiy\MyLog;
-use Gaivoronskiy\GaivoronskiyException;
-use Gaivoronskiy\QuEquation;
+use Gaivoronskiy\GaivoronskiyExeption;
 
-include "core/EquationInterface.php";
-include "core/LogAbstract.php";
-include "core/LogInterface.php";
-include "Gaivoronskiy/MyLog.php";
-include "Gaivoronskiy/Equation.php";
-include "Gaivoronskiy/QuEquation.php";
-include "Gaivoronskiy/GaivoronskiyException.php";
+ini_set("display_errors", 1); error_reporting(-1);
 
-ini_set("display_errors", 1);
-error_reporting(-1);
+require_once('core\core\EquationInterface.php');
+require_once('core\core\LogInterface.php');
+require_once('core\core\LogAbstract.php');
+require_once('Gaivoronskiy/MyLog.php');
+require_once('Gaivoronskiy/LineEquation.php');
+require_once('Gaivoronskiy/SquareEquation.php');
+require_once('Gaivoronskiy/GaivoronskiyExeption.php');
 
+// Logic
 try {
-    $b = new QuEquation();
-    $values = array();
-
-    for ($i = 1; $i < 4; $i++) {
-        echo "Введите " . $i . " аргумент: ";
-        $values[] = readline();
+    $dir = 'log\\';
+    if (!file_exists($dir)) {
+        mkdir($dir, 0755);
     }
-    $va = $values[0];
-    $vb = $values[1];
-    $vc = $values[2];
 
-    MyLog::log("Введено уравнение " . $va . "x^2 + " . $vb . "x + " . $vc . " = 0");
-    $x = $b->solve($va, $vb, $vc);
+    $file = fopen("version", "r");
+    MyLog::log("Version program: " . fgets($file));
+    fclose($file);
 
-    $str = implode(", ", $x);
-    MyLog::log("Корни уравнения: " . $str);
-} catch (GaivoronskiyException $e) {
+    echo "3 parameters entered: a, b, c \n\r";
+    $read = readline();
+    $param = explode(" ", $read);
+    // The first way to solve the problem
+    foreach($param as &$valueFloat) {
+        $valueFloat = (float) $valueFloat;
+    }
+    unset($valueFloat); // удаление ссылки на последний элемент массива
+    // Second way to solve the problem
+    //$param = array_map('floatval', $param);
+    //(empty($param[2])) ? $param[2] = 0 : $param[2];
+    MyLog::log("The equation is introduced: $param[0]*x^2 + $param[1]*x + $param[2] = 0");
+    $squareEquation = new SquareEquation();
+    $resultEquation = $squareEquation->solve($param[0], $param[1], $param[2]);
+    MyLog::log('Equation roots: ' . implode('; ', $resultEquation));
+} catch (Exception $e) {
     MyLog::log($e->getMessage());
 }
-
 MyLog::write();
-
-?>
